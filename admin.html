@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bespoke Masterclass: Image Representation & RGB Math</title>
+    <title>Zyan's GCSE Quest: Image Representation & RGB Math</title>
     <!-- Tailwind CSS for elegant layout -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- MathJax for gorgeous rendering of mathematical equations -->
@@ -65,7 +65,7 @@
                 <div>
                     <span class="text-xs uppercase tracking-widest text-amber-400/80 font-semibold block">Bespoke Academy</span>
                     <h1 class="text-lg font-bold tracking-tight text-white flex items-center gap-2">
-                        GCSE Computer Science Masterclass <span class="text-xs font-normal px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">Module 1.3</span>
+                        Zyan's GCSE Quest: Computer Science Masterclass <span class="text-xs font-normal px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">Module 1.3</span>
                     </h1>
                 </div>
             </div>
@@ -941,6 +941,132 @@
                         </div>
                     </div>
 
+                    <!-- Question 6 -->
+                    <div class="question-block border border-slate-800 bg-slate-950/60 p-6 rounded-xl space-y-4 my-6">
+                        <div class="flex justify-between items-start">
+                            <span class="text-xs font-bold uppercase tracking-widest text-indigo-400">Question 6 (Level 7)</span>
+                            <span class="text-xs text-slate-500">[2 Marks]</span>
+                        </div>
+                        <p class="text-sm text-slate-200 font-medium">
+                            A digital art canvas has a resolution of $3,000$ pixels wide by $4,000$ pixels high. 
+                            Convert this total resolution into <strong>Megapixels (MP)</strong>.
+                        </p>
+                        
+                        <div class="space-y-3">
+                            <input type="number" id="eq6-ans" class="w-full md:w-80 px-4 py-2 bg-slate-900 border border-slate-800 rounded-lg text-sm text-white focus:outline-none focus:border-indigo-500" placeholder="Type MP value (e.g., 12)...">
+                            
+                            <div class="flex items-center gap-4">
+                                <button onclick="checkExamQ6()" class="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-slate-100 rounded text-xs font-semibold">Check Answer</button>
+                                <button onclick="toggleHint('hint-eq6')" class="text-xs text-slate-500 hover:text-indigo-400 underline">Tutor Tip</button>
+                            </div>
+                            <div id="hint-eq6" class="hidden text-xs text-amber-400/80 italic mt-2">
+                                Hint: First multiply $3,000 \times 4,000$ to get $12,000,000$ total pixels. Then divide this count by $1,000,000$ to convert it to Megapixels.
+                            </div>
+                            <div id="eq6-fb" class="text-xs font-semibold hidden mt-2"></div>
+                        </div>
+                    </div>
+
+                    <!-- Question 7 -->
+                    <div class="question-block border border-slate-800 bg-slate-950/60 p-6 rounded-xl space-y-4 my-6">
+                        <div class="flex justify-between items-start">
+                            <span class="text-xs font-bold uppercase tracking-widest text-indigo-400">Question 7 (Level 8)</span>
+                            <span class="text-xs text-slate-500">[3 Marks]</span>
+                        </div>
+                        <p class="text-sm text-slate-200 font-medium">
+                            An image is modified to increase its color variety, upgrading its colour depth from <strong>4 bits</strong> to <strong>8 bits</strong> per pixel. 
+                            By what <strong>factor</strong> does the total range of available colours increase?
+                        </p>
+                        
+                        <div class="space-y-3">
+                            <input type="number" id="eq7-ans" class="w-full md:w-80 px-4 py-2 bg-slate-900 border border-slate-800 rounded-lg text-sm text-white focus:outline-none focus:border-indigo-500" placeholder="Type multiplication factor...">
+                            
+                            <div class="flex items-center gap-4">
+                                <button onclick="checkExamQ7()" class="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-slate-100 rounded text-xs font-semibold">Check Answer</button>
+                                <button onclick="toggleHint('hint-eq7')" class="text-xs text-slate-500 hover:text-indigo-400 underline">Tutor Tip</button>
+                            </div>
+                            <div id="hint-eq7" class="hidden text-xs text-amber-400/80 italic mt-2">
+                                Hint: Calculate the number of colours with 4 bits ($2^4 = 16$) and with 8 bits ($2^8 = 256$). Divide the larger range by the smaller range to see by what factor it increased!
+                            </div>
+                            <div id="eq7-fb" class="text-xs font-semibold hidden mt-2"></div>
+                        </div>
+                    </div>
+
+                    <!-- Question 8 -->
+                    <div class="question-block border border-slate-800 bg-slate-950/60 p-6 rounded-xl space-y-4 my-6">
+                        <div class="flex justify-between items-start">
+                            <span class="text-xs font-bold uppercase tracking-widest text-indigo-400">Question 8 (Level 9)</span>
+                            <span class="text-xs text-slate-500">[3 Marks]</span>
+                        </div>
+                        <p class="text-sm text-slate-200 font-medium">
+                            A programmer wants to fill a vector shape in Python using <code>turtle.fillcolor()</code>. 
+                            They mixed a color with Red: 85 (Hex: 55), Green: 26 (Hex: 1A), and Blue: 139 (Hex: 8B). 
+                            What is the exact 7-character hexadecimal code string (beginning with <code>#</code>) they must supply to Python?
+                        </p>
+                        
+                        <div class="space-y-3">
+                            <input type="text" id="eq8-ans" class="w-full md:w-80 px-4 py-2 bg-slate-900 border border-slate-800 rounded-lg text-sm text-white focus:outline-none focus:border-indigo-500" placeholder="Type # followed by hex code...">
+                            
+                            <div class="flex items-center gap-4">
+                                <button onclick="checkExamQ8()" class="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-slate-100 rounded text-xs font-semibold">Check Answer</button>
+                                <button onclick="toggleHint('hint-eq8')" class="text-xs text-slate-500 hover:text-indigo-400 underline">Tutor Tip</button>
+                            </div>
+                            <div id="hint-eq8" class="hidden text-xs text-amber-400/80 italic mt-2">
+                                Hint: The string format is <code>#RRGGBB</code>. Put the two-digit hex values for Red (55), Green (1A), and Blue (8B) directly together behind the hashtag.
+                            </div>
+                            <div id="eq8-fb" class="text-xs font-semibold hidden mt-2"></div>
+                        </div>
+                    </div>
+
+                    <!-- Question 9 -->
+                    <div class="question-block border border-slate-800 bg-slate-950/60 p-6 rounded-xl space-y-4 my-6">
+                        <div class="flex justify-between items-start">
+                            <span class="text-xs font-bold uppercase tracking-widest text-indigo-400">Question 9 (Level 8)</span>
+                            <span class="text-xs text-slate-500">[3 Marks]</span>
+                        </div>
+                        <p class="text-sm text-slate-200 font-medium">
+                            A retro pixel sprite of a gaming character has a resolution of exactly $80 \times 80$ pixels. 
+                            It is stored with a 1-bit monochrome colour depth. Calculate the uncompressed storage size of this graphic <strong>in Bytes</strong>.
+                        </p>
+                        
+                        <div class="space-y-3">
+                            <input type="number" id="eq9-ans" class="w-full md:w-80 px-4 py-2 bg-slate-900 border border-slate-800 rounded-lg text-sm text-white focus:outline-none focus:border-indigo-500" placeholder="Type size in Bytes...">
+                            
+                            <div class="flex items-center gap-4">
+                                <button onclick="checkExamQ9()" class="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-slate-100 rounded text-xs font-semibold">Check Answer</button>
+                                <button onclick="toggleHint('hint-eq9')" class="text-xs text-slate-500 hover:text-indigo-400 underline">Tutor Tip</button>
+                            </div>
+                            <div id="hint-eq9" class="hidden text-xs text-amber-400/80 italic mt-2">
+                                Hint: Step 1: Find total bits ($80 \times 80 \times 1 = 6,400$ bits). Step 2: Since there are 8 bits in a Byte, divide $6,400$ by $8$ to get the total Bytes.
+                            </div>
+                            <div id="eq9-fb" class="text-xs font-semibold hidden mt-2"></div>
+                        </div>
+                    </div>
+
+                    <!-- Question 10 -->
+                    <div class="question-block border border-slate-800 bg-slate-950/60 p-6 rounded-xl space-y-4 my-6">
+                        <div class="flex justify-between items-start">
+                            <span class="text-xs font-bold uppercase tracking-widest text-indigo-400">Question 10 (Level 9 Elite)</span>
+                            <span class="text-xs text-slate-500">[5 Marks]</span>
+                        </div>
+                        <div class="text-sm text-slate-200 font-medium space-y-2">
+                            <p>An ultra-HD camera captures uncompressed images with a resolution of $4,000 \times 2,000$ pixels at a 24-bit True Color depth.</p>
+                            <p>If you have a fast storage module with exactly <strong>150 Megabytes (MB)</strong> of free space, how many <strong>complete</strong> uncompressed images can you store on it? Assume $1\text{ MB} = 1,000,000\text{ Bytes}$.</p>
+                        </div>
+                        
+                        <div class="space-y-3">
+                            <input type="number" id="eq10-ans" class="w-full md:w-80 px-4 py-2 bg-slate-900 border border-slate-800 rounded-lg text-sm text-white focus:outline-none focus:border-indigo-500" placeholder="Type number of complete images...">
+                            
+                            <div class="flex items-center gap-4">
+                                <button onclick="checkExamQ10()" class="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-slate-100 rounded text-xs font-semibold">Check Answer</button>
+                                <button onclick="toggleHint('hint-eq10')" class="text-xs text-slate-500 hover:text-indigo-400 underline">Tutor Tip</button>
+                            </div>
+                            <div id="hint-eq10" class="hidden text-xs text-amber-400/80 italic mt-2">
+                                Hint: Step 1: Calculate the size of one image in bits ($4,000 \times 2,000 \times 24 = 192,000,000$ bits). Step 2: Convert to Bytes by dividing by 8 ($24,000,000$ Bytes). Step 3: Convert to Megabytes ($24\text{ MB}$). Step 4: Work out how many times $24\text{ MB}$ fits completely into $150\text{ MB}$ without exceeding it (round down to a whole number!).
+                            </div>
+                            <div id="eq10-fb" class="text-xs font-semibold hidden mt-2"></div>
+                        </div>
+                    </div>
+
                     <!-- Celebration Card -->
                     <div id="end-card" class="hidden border-2 border-emerald-500/50 bg-emerald-950/20 p-6 rounded-2xl text-center space-y-4 my-8">
                         <span class="text-3xl">🏆</span>
@@ -978,7 +1104,12 @@
             eq2: false,
             eq3: false,
             eq4: false,
-            eq5: false
+            eq5: false,
+            eq6: false,
+            eq7: false,
+            eq8: false,
+            eq9: false,
+            eq10: false
         };
 
         // Track B&W custom paint state
@@ -1350,6 +1481,95 @@
                 fb.innerHTML = '❌ Incorrect. Remember: metadata is descriptive data (e.g., width, height). It does not perform file compression or make pixels sharper.';
                 fb.className = 'text-xs font-semibold text-rose-400 mt-2';
                 checkpointScores.eq5 = false;
+            }
+            calculateGlobalScore();
+        }
+
+        function checkExamQ6() {
+            const val = document.getElementById('eq6-ans').value.trim();
+            const fb = document.getElementById('eq6-fb');
+            fb.classList.remove('hidden');
+
+            if(val === '12') {
+                fb.innerHTML = '🎯 Correct [2/2 Marks]: Perfect! $3000 \\times 4000 = 12,000,000$ pixels, which is exactly 12 Megapixels (MP).';
+                fb.className = 'text-xs font-semibold text-emerald-400 mt-2';
+                checkpointScores.eq6 = true;
+            } else {
+                fb.innerHTML = '❌ Incorrect. Multiply width by height and divide by 1,000,000 to find the Megapixels.';
+                fb.className = 'text-xs font-semibold text-rose-400 mt-2';
+                checkpointScores.eq6 = false;
+            }
+            calculateGlobalScore();
+        }
+
+        function checkExamQ7() {
+            const val = document.getElementById('eq7-ans').value.trim();
+            const fb = document.getElementById('eq7-fb');
+            fb.classList.remove('hidden');
+
+            if(val === '16') {
+                fb.innerHTML = '🎯 Correct [3/3 Marks]: Amazing! 4 bits gives 16 colors, 8 bits gives 256 colors. $256 \\div 16 = 16$. Each added bit doubles the range ($2 \\times 2 \\times 2 \\times 2 = 16$).';
+                fb.className = 'text-xs font-semibold text-emerald-400 mt-2';
+                checkpointScores.eq7 = true;
+            } else {
+                fb.innerHTML = '❌ Incorrect. Think about the ratio: $2^8 \\div 2^4 = 2^4 = 16$.';
+                fb.className = 'text-xs font-semibold text-rose-400 mt-2';
+                checkpointScores.eq7 = false;
+            }
+            calculateGlobalScore();
+        }
+
+        function checkExamQ8() {
+            const val = document.getElementById('eq8-ans').value.trim().toUpperCase();
+            const fb = document.getElementById('eq8-fb');
+            fb.classList.remove('hidden');
+
+            if(val === '#551A8B') {
+                fb.innerHTML = '🎯 Correct [3/3 Marks]: Outstanding! Combining hex colors for Red (55), Green (1A), and Blue (8B) gives #551A8B.';
+                fb.className = 'text-xs font-semibold text-emerald-400 mt-2';
+                checkpointScores.eq8 = true;
+            } else {
+                fb.innerHTML = '❌ Incorrect. Format must be exactly 7 characters starting with # (e.g. #RRGGBB).';
+                fb.className = 'text-xs font-semibold text-rose-400 mt-2';
+                checkpointScores.eq8 = false;
+            }
+            calculateGlobalScore();
+        }
+
+        function checkExamQ9() {
+            const val = document.getElementById('eq9-ans').value.trim();
+            const fb = document.getElementById('eq9-fb');
+            fb.classList.remove('hidden');
+
+            if(val === '800') {
+                fb.innerHTML = '🎯 Correct [3/3 Marks]: Superb. $80 \\times 80 \\times 1$ bit = 6,400 bits. Divided by 8 = 800 Bytes.';
+                fb.className = 'text-xs font-semibold text-emerald-400 mt-2';
+                checkpointScores.eq9 = true;
+            } else if (val === '6400') {
+                fb.innerHTML = '❌ Close, but $6,400$ is the size in bits. Divide by 8 to get Bytes!';
+                fb.className = 'text-xs font-semibold text-rose-400 mt-2';
+                checkpointScores.eq9 = false;
+            } else {
+                fb.innerHTML = '❌ Incorrect. Use formula: (Height $\\times$ Width $\\times$ Colour Depth) / 8.';
+                fb.className = 'text-xs font-semibold text-rose-400 mt-2';
+                checkpointScores.eq9 = false;
+            }
+            calculateGlobalScore();
+        }
+
+        function checkExamQ10() {
+            const val = document.getElementById('eq10-ans').value.trim();
+            const fb = document.getElementById('eq10-fb');
+            fb.classList.remove('hidden');
+
+            if(val === '6') {
+                fb.innerHTML = '🎯 Correct [5/5 Marks]: Masterclass standard! One frame requires exactly 24 MB ($4000 \\times 2000 \\times 24 / 8 = 24,000,000$ Bytes). $150 \\div 24 = 6.25$. So, we can store 6 complete frames.';
+                fb.className = 'text-xs font-semibold text-emerald-400 mt-2';
+                checkpointScores.eq10 = true;
+            } else {
+                fb.innerHTML = '❌ Incorrect. First find the size of one image in Megabytes ($24$ MB). Then find how many whole frames fit into $150$ MB (round down!).';
+                fb.className = 'text-xs font-semibold text-rose-400 mt-2';
+                checkpointScores.eq10 = false;
             }
             calculateGlobalScore();
         }
