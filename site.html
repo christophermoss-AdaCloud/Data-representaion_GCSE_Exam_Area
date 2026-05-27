@@ -1,0 +1,1374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bespoke Masterclass: Image Representation & RGB Math</title>
+    <!-- Tailwind CSS for elegant layout -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- MathJax for gorgeous rendering of mathematical equations -->
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            },
+            svg: {
+                fontCache: 'global'
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #060a13;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(30, 58, 138, 0.3) 0, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(79, 70, 229, 0.2) 0, transparent 50%);
+        }
+        .header-title {
+            font-family: 'Cinzel', serif;
+        }
+        .mono-font {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0b1329;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1e293b;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #334155;
+        }
+    </style>
+</head>
+<body class="text-slate-100 min-h-screen flex flex-col justify-between selection:bg-indigo-500 selection:text-white">
+
+    <!-- Header Navigation & Progress -->
+    <header class="border-b border-slate-800/80 bg-slate-900/60 backdrop-blur-md sticky top-0 z-50 px-6 py-4">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-3">
+                <div class="h-10 w-10 rounded-xl bg-gradient-to-tr from-amber-400 via-indigo-500 to-cyan-400 p-0.5 flex items-center justify-center shadow-lg shadow-indigo-500/10">
+                    <div class="h-full w-full bg-slate-950 rounded-[10px] flex items-center justify-center">
+                        <span class="text-amber-400 font-bold text-lg header-title">Ω</span>
+                    </div>
+                </div>
+                <div>
+                    <span class="text-xs uppercase tracking-widest text-amber-400/80 font-semibold block">Bespoke Academy</span>
+                    <h1 class="text-lg font-bold tracking-tight text-white flex items-center gap-2">
+                        GCSE Computer Science Masterclass <span class="text-xs font-normal px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">Module 1.3</span>
+                    </h1>
+                </div>
+            </div>
+            
+            <!-- Core Progress Indicators -->
+            <div class="flex items-center gap-6 w-full md:w-auto justify-end">
+                <div class="hidden sm:block text-right">
+                    <span class="text-xs text-slate-400 block">Current Objective</span>
+                    <span id="objective-title" class="text-sm font-semibold text-amber-400">1. Pixels & Binary Art</span>
+                </div>
+                <div class="w-48 bg-slate-800 h-2.5 rounded-full overflow-hidden border border-slate-700">
+                    <div id="master-progress" class="h-full bg-gradient-to-r from-indigo-500 to-emerald-400 w-0 transition-all duration-500 ease-out"></div>
+                </div>
+                <div class="bg-slate-950/80 border border-slate-800 px-3 py-1.5 rounded-lg flex items-center gap-2">
+                    <span class="text-xs text-slate-400">Score:</span>
+                    <span id="master-score" class="font-bold text-emerald-400 mono-font">0%</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <main class="max-w-7xl mx-auto px-4 md:px-6 py-8 flex-1 grid grid-cols-1 lg:grid-cols-12 gap-8 w-full">
+        
+        <!-- Left Side: Interactive Sidebar Menu -->
+        <aside class="lg:col-span-3 flex flex-col gap-4">
+            <div class="bg-slate-900/50 border border-slate-800/80 rounded-2xl p-4 backdrop-blur-sm sticky top-28">
+                <h3 class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-4 px-2">Lesson Pathway</h3>
+                <nav class="flex flex-col gap-2">
+                    <button onclick="switchTab('tab-pixels')" id="btn-tab-pixels" class="tab-btn w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 transition-all duration-200 bg-indigo-600/20 border border-indigo-500/40 text-white font-medium">
+                        <span class="w-6 h-6 rounded-lg bg-indigo-500/20 flex items-center justify-center text-xs text-indigo-300 border border-indigo-500/30">1</span>
+                        <span>Binary Image Paint</span>
+                    </button>
+                    <button onclick="switchTab('tab-rgb')" id="btn-tab-rgb" class="tab-btn w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 transition-all duration-200 hover:bg-slate-800/50 text-slate-400 hover:text-white border border-transparent">
+                        <span class="w-6 h-6 rounded-lg bg-slate-800 flex items-center justify-center text-xs text-slate-500 border border-slate-700">2</span>
+                        <span>RGB Light Mixer</span>
+                    </button>
+                    <button onclick="switchTab('tab-depth')" id="btn-tab-depth" class="tab-btn w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 transition-all duration-200 hover:bg-slate-800/50 text-slate-400 hover:text-white border border-transparent">
+                        <span class="w-6 h-6 rounded-lg bg-slate-800 flex items-center justify-center text-xs text-slate-500 border border-slate-700">3</span>
+                        <span>Colour Depth Math</span>
+                    </button>
+                    <button onclick="switchTab('tab-calc')" id="btn-tab-calc" class="tab-btn w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 transition-all duration-200 hover:bg-slate-800/50 text-slate-400 hover:text-white border border-transparent">
+                        <span class="w-6 h-6 rounded-lg bg-slate-800 flex items-center justify-center text-xs text-slate-500 border border-slate-700">4</span>
+                        <span>File Size Equations</span>
+                    </button>
+                    <button onclick="switchTab('tab-metadata')" id="btn-tab-metadata" class="tab-btn w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 transition-all duration-200 hover:bg-slate-800/50 text-slate-400 hover:text-white border border-transparent">
+                        <span class="w-6 h-6 rounded-lg bg-slate-800 flex items-center justify-center text-xs text-slate-500 border border-slate-700">5</span>
+                        <span>Role of Metadata</span>
+                    </button>
+                    <button onclick="switchTab('tab-exam')" id="btn-tab-exam" class="tab-btn w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 transition-all duration-200 hover:bg-slate-800/50 text-slate-400 hover:text-white border border-transparent">
+                        <span class="w-6 h-6 rounded-lg bg-slate-800 flex items-center justify-center text-xs text-slate-500 border border-slate-700">6</span>
+                        <span>Practice Suite</span>
+                    </button>
+                </nav>
+
+                <div class="mt-8 pt-6 border-t border-slate-800">
+                    <div class="bg-amber-500/10 border border-amber-500/30 rounded-xl p-3">
+                        <h4 class="text-xs font-bold text-amber-400 uppercase tracking-wider mb-1 flex items-center gap-1.5">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+                            Tutor's High-Value Note
+                        </h4>
+                        <p class="text-[11px] text-slate-300 leading-relaxed">
+                            Hello! You are tackling Grade 8/9 concepts today. We'll explore why raw bits represent light, how to calculate resolution requirements, and decode real examination puzzles. Work through each tool step by step!
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Right Side: Content Area / Learning Modules -->
+        <section class="lg:col-span-9 flex flex-col gap-6">
+
+            <!-- MODULE 1: THE DIGITAL CANVAS -->
+            <div id="tab-pixels" class="lesson-view space-y-6">
+                <div class="bg-slate-900/40 border border-slate-800 rounded-2xl p-6 md:p-8 backdrop-blur-sm">
+                    <span class="text-xs font-bold uppercase tracking-wider text-indigo-400">Section 1: The Digital Canvas</span>
+                    <h2 class="text-2xl md:text-3xl font-bold mt-1 text-white">How Computers "See" the World</h2>
+                    
+                    <p class="mt-4 text-slate-300 leading-relaxed text-base">
+                        Unlike human eyes that see continuous gradients of light, computers are digital machines. They must divide any beautiful image, landscape, or video screen into an incredibly fine grid of tiny squares called <strong class="text-indigo-300 font-semibold">pixels</strong> (Picture Elements).
+                    </p>
+
+                    <!-- Interactive B&W Painting Grid -->
+                    <div class="my-8 bg-slate-950/80 border border-slate-800 rounded-2xl p-6">
+                        <div class="border-b border-slate-800 pb-4 mb-4">
+                            <h3 class="text-sm font-semibold text-white flex items-center gap-2">
+                                <span class="w-2.5 h-2.5 rounded-full bg-indigo-500 animate-pulse"></span>
+                                Interactive Sandbox: Black & White Binary Painter
+                            </h3>
+                            <p class="text-xs text-slate-400 mt-1 leading-relaxed">
+                                Draw on the grid below by clicking squares. In a monochrome bitmap, we map a simple black-and-white picture directly to binary states:
+                                <strong class="text-indigo-400">0 represents Black (On/Coloured)</strong> and 
+                                <strong class="text-amber-400">1 represents White (Off/Uncoloured)</strong>.
+                            </p>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                            <!-- Left: Interactive Monochrome Painting Grid -->
+                            <div class="flex flex-col items-center justify-center p-4 bg-slate-900/50 rounded-xl border border-slate-800">
+                                <div id="bw-paint-grid" class="grid grid-cols-8 gap-1 w-52 h-52 bg-slate-950 p-2 rounded-lg border border-slate-700/50">
+                                    <!-- 64 dynamic pixels generated via JS -->
+                                </div>
+                                <div class="mt-3 flex gap-2">
+                                    <button onclick="clearPaintGrid(1)" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-[10px] font-bold uppercase rounded tracking-wider">All White (1s)</button>
+                                    <button onclick="clearPaintGrid(0)" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-[10px] font-bold uppercase rounded tracking-wider">All Black (0s)</button>
+                                </div>
+                            </div>
+
+                            <!-- Right: Real-time Bit Stream Output -->
+                            <div class="space-y-4">
+                                <div>
+                                    <span class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Live Binary Bitstream Output ($8 \times 8 = 64$ bits)</span>
+                                    <div id="binary-stream-display" class="font-mono text-xs bg-slate-950 border border-slate-800 p-3 rounded-lg text-emerald-400 break-words leading-relaxed tracking-widest select-all">
+                                        <!-- Realtime binary representation printed here -->
+                                    </div>
+                                    <span class="text-[10px] text-slate-500 block mt-1">Copy the text above! Row-by-row, this is exactly what the computer stores on secondary drives.</span>
+                                </div>
+                                <div class="p-3 bg-indigo-950/20 rounded-lg border border-indigo-500/10 text-xs text-slate-300 leading-relaxed">
+                                    <span class="font-bold text-white block mb-0.5">Key Binary Fact:</span>
+                                    Notice how painting inside the grid immediately updates the raw stream values. A single bit stores either a 0 or a 1.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Interactive Grid Slider Demonstration (Resolution) -->
+                    <div class="my-8 bg-slate-950/80 border border-slate-800 rounded-2xl p-6">
+                        <h3 class="text-sm font-semibold text-white mb-2 flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                            Live Demonstration: Resolution vs. Pixelation
+                        </h3>
+                        <p class="text-xs text-slate-400 mb-6">
+                            Interact with the dynamic canvas below. Slide the resolution down to see how an image becomes pixelated when you do not have enough pixels in your grid!
+                        </p>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                            <!-- Left: Interactive Canvas View -->
+                            <div class="flex flex-col items-center justify-center p-4 bg-slate-900/50 rounded-xl border border-slate-800">
+                                <div id="pixel-canvas-container" class="relative w-48 h-48 border-2 border-slate-700/80 rounded-lg overflow-hidden flex flex-wrap shadow-inner bg-slate-950">
+                                    <!-- Dynamic pixel divs are injected here via JS -->
+                                </div>
+                                <span class="text-xs text-slate-500 mt-2 font-mono" id="resolution-label">Resolution Grid: 16x16 (256 pixels)</span>
+                            </div>
+
+                            <!-- Right: Dynamic Controls & Lesson Integration -->
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">Adjust Grid Density (Resolution)</label>
+                                    <input type="range" id="res-slider" min="4" max="24" step="4" value="16" oninput="changeResolutionGrid()" class="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500">
+                                    <div class="flex justify-between text-[11px] text-slate-500 font-mono mt-1">
+                                        <span>4x4 (Extremely Pixelated)</span>
+                                        <span>24x24 (High Quality)</span>
+                                    </div>
+                                </div>
+                                <div class="p-3 bg-slate-900/40 rounded-lg border border-slate-800 text-xs text-slate-300 leading-relaxed">
+                                    <span class="font-bold text-white block mb-1">Key Connection:</span>
+                                    As you slide the grid layout down to $4 \times 4$, notice how the curving shapes of the digital "smile" icon completely break down. This shows why high resolution requires a higher volume of pixels!
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+                        <div class="p-4 bg-slate-950/40 rounded-xl border border-slate-800/80">
+                            <span class="text-xs text-amber-400 font-semibold block uppercase">Concept 1: Pixel Resolution</span>
+                            <p class="text-xs text-slate-300 mt-1 leading-relaxed">
+                                Resolution is measured as $\text{Width} \times \text{Height}$ of the canvas grid. For instance, a Standard Definition monitor might have a grid of $1920 \times 1080$ pixels.
+                            </p>
+                        </div>
+                        <div class="p-4 bg-slate-950/40 rounded-xl border border-slate-800/80">
+                            <span class="text-xs text-indigo-400 font-semibold block uppercase">Concept 2: Bit Stream Data</span>
+                            <p class="text-xs text-slate-300 mt-1 leading-relaxed">
+                                To transmit or save an image, the computer converts the color values of these pixels row-by-row into a long line of binary numbers ($0$s and $1$s).
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Mini Assessment 1 -->
+                    <div class="mt-8 border-t border-slate-800 pt-6">
+                        <div class="bg-indigo-950/20 border border-indigo-500/20 rounded-xl p-5">
+                            <h4 class="text-sm font-bold text-indigo-300 mb-2 flex items-center gap-2">
+                                <span class="bg-indigo-500 text-slate-950 text-xs px-2 py-0.5 rounded font-extrabold uppercase">Checkpoint</span>
+                                Conceptual Question
+                            </h4>
+                            <p class="text-sm text-slate-300 mb-4 leading-relaxed">
+                                An old electronic dashboard has a resolution of exactly $64 \times 32$ pixels. How many total pixels compose this interface?
+                            </p>
+                            <div class="flex flex-wrap items-center gap-3">
+                                <input type="number" id="sc1-ans" class="px-3 py-2 bg-slate-950 rounded-lg border border-slate-800 text-sm w-32 focus:outline-none focus:border-indigo-500 text-white font-mono" placeholder="Calculate...">
+                                <button onclick="checkCheckpoint1()" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm rounded-lg transition-all shadow-md shadow-indigo-600/10">Submit Answer</button>
+                                <button onclick="toggleHint('cp1-hint')" class="text-xs text-slate-400 hover:text-indigo-300 underline">Show Tutor Hint</button>
+                            </div>
+                            <div id="cp1-hint" class="hidden text-xs text-amber-400/80 italic mt-3 leading-relaxed">
+                                Hint: Work out the multiplication: $64 \times 32$. Think of it as $(64 \times 30) + (64 \times 2)$.
+                            </div>
+                            <div id="cp1-feedback" class="mt-3 text-sm font-semibold hidden"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Next button -->
+                <div class="flex justify-end">
+                    <button onclick="switchTab('tab-rgb')" class="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-bold text-sm transition-all shadow-lg shadow-indigo-500/10 flex items-center gap-2">
+                        <span>Continue to RGB Mixer</span>
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- MODULE 2: RGB LIGHT MIXER -->
+            <div id="tab-rgb" class="lesson-view space-y-6 hidden">
+                <div class="bg-slate-900/40 border border-slate-800 rounded-2xl p-6 md:p-8 backdrop-blur-sm">
+                    <span class="text-xs font-bold uppercase tracking-wider text-amber-400">Section 2: The RGB Spectrum</span>
+                    <h2 class="text-2xl md:text-3xl font-bold mt-1 text-white">Mixing Colors with Light</h2>
+                    
+                    <p class="mt-4 text-slate-300 leading-relaxed text-base">
+                        Every single color you see on an LCD, OLED, or smartphone screen is generated by mixing varying intensities of exactly three colors of light: <strong class="text-red-400">Red</strong>, <strong class="text-emerald-400">Green</strong>, and <strong class="text-indigo-400">Blue</strong> (RGB). This is known as an <span class="text-amber-300 font-semibold underline decoration-amber-500/40">additive color model</span>.
+                    </p>
+
+                    <p class="mt-2 text-slate-300 leading-relaxed text-sm">
+                        To store one channel (R, G, or B), computers assign exactly <strong>8 bits</strong> (which is equivalent to 1 byte). Since 8 bits can hold binary codes from $00000000$ to $11111111$, we get $2^8 = 256$ possible intensity values (from 0 to 255).
+                    </p>
+
+                    <!-- RGB Interactive Exploration Space -->
+                    <div class="my-8 bg-slate-950/80 border border-slate-800 rounded-2xl p-6">
+                        <h3 class="text-sm font-semibold text-white mb-6 flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-indigo-400"></span>
+                            Real-Time RGB Mixer & Bit Decoder
+                        </h3>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                            
+                            <!-- Controls Panel -->
+                            <div class="space-y-6">
+                                <div>
+                                    <div class="flex justify-between items-center mb-1">
+                                        <label class="text-xs font-bold text-red-400 uppercase tracking-widest">Red Intensity</label>
+                                        <span id="mixer-r-val" class="font-mono text-sm text-red-400 font-bold">128</span>
+                                    </div>
+                                    <input type="range" id="mixer-r" min="0" max="255" value="128" oninput="updateMasterMixer()" class="w-full h-1.5 bg-red-950/80 rounded-lg appearance-none cursor-pointer accent-red-500">
+                                    <div class="flex justify-between text-[10px] text-slate-500 font-mono mt-1">
+                                        <span>Binary: <span id="mixer-r-bin" class="text-slate-400">10000000</span></span>
+                                        <span>Hex: <span id="mixer-r-hex" class="text-slate-400">80</span></span>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <div class="flex justify-between items-center mb-1">
+                                        <label class="text-xs font-bold text-emerald-400 uppercase tracking-widest">Green Intensity</label>
+                                        <span id="mixer-g-val" class="font-mono text-sm text-emerald-400 font-bold">45</span>
+                                    </div>
+                                    <input type="range" id="mixer-g" min="0" max="255" value="45" oninput="updateMasterMixer()" class="w-full h-1.5 bg-emerald-950/80 rounded-lg appearance-none cursor-pointer accent-emerald-500">
+                                    <div class="flex justify-between text-[10px] text-slate-500 font-mono mt-1">
+                                        <span>Binary: <span id="mixer-g-bin" class="text-slate-400">00101101</span></span>
+                                        <span>Hex: <span id="mixer-g-hex" class="text-slate-400">2D</span></span>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <div class="flex justify-between items-center mb-1">
+                                        <label class="text-xs font-bold text-indigo-400 uppercase tracking-widest">Blue Intensity</label>
+                                        <span id="mixer-b-val" class="font-mono text-sm text-indigo-400 font-bold">220</span>
+                                    </div>
+                                    <input type="range" id="mixer-b" min="0" max="255" value="220" oninput="updateMasterMixer()" class="w-full h-1.5 bg-indigo-950/80 rounded-lg appearance-none cursor-pointer accent-indigo-500">
+                                    <div class="flex justify-between text-[10px] text-slate-500 font-mono mt-1">
+                                        <span>Binary: <span id="mixer-b-bin" class="text-slate-400">11011100</span></span>
+                                        <span>Hex: <span id="mixer-b-hex" class="text-slate-400">DC</span></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Display Screen -->
+                            <div class="flex flex-col items-center justify-center h-full">
+                                <div id="rgb-preview" class="w-full h-44 rounded-2xl border border-slate-700/60 shadow-inner flex flex-col justify-end p-4 text-center" style="background-color: rgb(128, 45, 220);">
+                                    <div class="bg-black/70 backdrop-blur-md rounded-xl p-3 border border-white/10">
+                                        <span class="text-xs text-slate-400 block uppercase font-semibold">Active Pixel Code</span>
+                                        <span id="rgb-css-label" class="text-base font-bold text-white mono-font">rgb(128, 45, 220)</span>
+                                        <span id="rgb-hex-total" class="text-xs text-amber-400 block font-mono mt-0.5">Hex Code: #802DDC</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <!-- Mini Assessment 2 -->
+                    <div class="mt-8 border-t border-slate-800 pt-6">
+                        <div class="bg-indigo-950/20 border border-indigo-500/20 rounded-xl p-5">
+                            <h4 class="text-sm font-bold text-indigo-300 mb-2 flex items-center gap-2">
+                                <span class="bg-indigo-500 text-slate-950 text-xs px-2 py-0.5 rounded font-extrabold uppercase">Checkpoint</span>
+                                Color Binary Math Challenge
+                            </h4>
+                            <p class="text-sm text-slate-300 mb-4 leading-relaxed">
+                                A single pixel has an RGB value represented in binary as:
+                                <br><span class="inline-block mt-2 px-3 py-1 bg-slate-950 rounded font-mono border border-slate-800 text-amber-400 text-sm">Red: 11111111 | Green: 00000000 | Blue: 11111111</span>
+                            </p>
+                            <p class="text-xs text-slate-400 mb-4 leading-relaxed">
+                                First, convert these binary channels to decimal intensities, then test them out in your sliders to see what color is produced!
+                            </p>
+                            <div class="flex flex-col gap-3">
+                                <label class="text-xs font-semibold text-slate-300">Type the name of the final mixed color (e.g., Red, Cyan, Yellow, White, Magenta):</label>
+                                <div class="flex flex-wrap items-center gap-3">
+                                    <input type="text" id="sc2-ans" class="px-3 py-2 bg-slate-950 rounded-lg border border-slate-800 text-sm w-44 focus:outline-none focus:border-indigo-500 text-white font-semibold" placeholder="Color name...">
+                                    <button onclick="checkCheckpoint2()" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm rounded-lg transition-all shadow-md shadow-indigo-600/10">Submit Answer</button>
+                                    <button onclick="toggleHint('cp2-hint')" class="text-xs text-slate-400 hover:text-indigo-300 underline">Show Tutor Hint</button>
+                                </div>
+                            </div>
+                            <div id="cp2-hint" class="hidden text-xs text-amber-400/80 italic mt-3 leading-relaxed">
+                                Hint: Binary $11111111$ is the absolute highest value ($255$), while $00000000$ represents completely off ($0$). So, you are mixing Red and Blue together at maximum intensity, with zero Green. Think of the secondary color that is created when Red and Blue light merge!
+                            </div>
+                            <div id="cp2-feedback" class="mt-3 text-sm font-semibold hidden"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Navigation buttons -->
+                <div class="flex justify-between">
+                    <button onclick="switchTab('tab-pixels')" class="px-5 py-3 border border-slate-800 hover:bg-slate-800 text-slate-300 rounded-xl font-bold text-sm transition-all flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
+                        <span>Previous</span>
+                    </button>
+                    <button onclick="switchTab('tab-depth')" class="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-bold text-sm transition-all shadow-lg shadow-indigo-500/10 flex items-center gap-2">
+                        <span>Continue to Color Depth</span>
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- MODULE 3: COLOR DEPTH MATH -->
+            <div id="tab-depth" class="lesson-view space-y-6 hidden">
+                <div class="bg-slate-900/40 border border-slate-800 rounded-2xl p-6 md:p-8 backdrop-blur-sm">
+                    <span class="text-xs font-bold uppercase tracking-wider text-emerald-400">Section 3: Color Depth Theory</span>
+                    <h2 class="text-2xl md:text-3xl font-bold mt-1 text-white">How Many Colors Can We Make?</h2>
+                    
+                    <p class="mt-4 text-slate-300 leading-relaxed text-base">
+                        To add colors, more <strong class="text-emerald-300 font-semibold">bits</strong> are required for each pixel. The total number of bits allocated dictates the range of available colors. This structural limit is called the <strong class="text-emerald-300 font-semibold">colour depth</strong>.
+                    </p>
+
+                    <!-- Core Facts Spotlight -->
+                    <div class="bg-slate-950/80 border-l-4 border-amber-400 rounded-r-2xl p-4 my-6">
+                        <div class="flex items-start gap-3">
+                            <div class="text-lg">💡</div>
+                            <div>
+                                <span class="text-xs uppercase font-bold text-amber-400 block font-mono">Key GCSE Fact</span>
+                                <p class="text-sm text-slate-200 mt-0.5 italic">
+                                    "Colour depth is the range of colours available in an image. Each extra bit doubles the range of colors that are available."
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Grayscale Sandbox Demonstration (2-Bit Color Depth) -->
+                    <div class="my-8 bg-slate-950/50 border border-slate-800 rounded-2xl p-6">
+                        <h3 class="text-xs font-bold uppercase tracking-widest text-emerald-400 mb-4">Grayscale Demonstration: 2-Bit Color Depth</h3>
+                        <p class="text-xs text-slate-300 mb-4">
+                            Using exactly 2 bits per pixel gives you $2^2 = 4$ color possibilities. Hover over or click each block to check its structural binary address:
+                        </p>
+                        <div class="grid grid-cols-4 gap-4 text-center">
+                            <div class="p-4 bg-black rounded-xl border border-slate-800 flex flex-col justify-between h-28">
+                                <span class="text-[10px] text-slate-400">00</span>
+                                <span class="text-xs font-bold font-mono text-white">Black</span>
+                            </div>
+                            <div class="p-4 bg-neutral-800 rounded-xl border border-slate-700 flex flex-col justify-between h-28">
+                                <span class="text-[10px] text-slate-400">01</span>
+                                <span class="text-xs font-bold font-mono text-white">Dark Grey</span>
+                            </div>
+                            <div class="p-4 bg-neutral-400 rounded-xl border border-slate-300 flex flex-col justify-between h-28 text-slate-900">
+                                <span class="text-[10px] text-slate-700">10</span>
+                                <span class="text-xs font-bold font-mono">Light Grey</span>
+                            </div>
+                            <div class="p-4 bg-white rounded-xl border border-slate-100 flex flex-col justify-between h-28 text-slate-900">
+                                <span class="text-[10px] text-slate-700">11</span>
+                                <span class="text-xs font-bold font-mono">White</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Dynamic Bit-Doubling Visualizer -->
+                    <div class="my-8 bg-slate-950/80 border border-slate-800 rounded-2xl p-6">
+                        <h3 class="text-sm font-semibold text-white mb-4">The Doubling Rule Explorer</h3>
+                        <p class="text-xs text-slate-400 mb-4">
+                            Slide the bit scale to see how each extra bit directly doubles the color limits:
+                        </p>
+                        <div class="space-y-4">
+                            <input type="range" id="bits-doubler-slider" min="1" max="16" value="4" oninput="updateDoublerVisual()" class="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-emerald-400">
+                            <div class="p-4 bg-slate-900 rounded-xl border border-slate-800 grid grid-cols-3 gap-4 text-center">
+                                <div>
+                                    <span class="text-[10px] text-slate-500 block uppercase">Bits per Pixel</span>
+                                    <span id="doubler-bits-display" class="text-lg font-bold text-emerald-400">4 bits</span>
+                                </div>
+                                <div>
+                                    <span class="text-[10px] text-slate-500 block uppercase font-mono">Math Equation</span>
+                                    <span id="doubler-equation-display" class="text-lg font-bold text-white font-mono">$2^4$</span>
+                                </div>
+                                <div>
+                                    <span class="text-[10px] text-slate-500 block uppercase">Total Color Range</span>
+                                    <span id="doubler-colors-display" class="text-lg font-bold text-amber-400">16 colors</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Core Formula Showcase -->
+                    <div class="my-6 bg-slate-950/80 border-l-4 border-emerald-500 rounded-r-2xl p-6">
+                        <h4 class="text-xs font-bold uppercase tracking-wider text-emerald-400 mb-1">The Essential Formula for Examinations</h4>
+                        <div class="text-base text-slate-200 py-2">
+                            $$\text{Number of Unique Colors} = 2^{n}$$
+                            <span class="text-xs text-slate-400 block mt-1">Where $n$ represents the image's Color Depth (in bits).</span>
+                        </div>
+                    </div>
+
+                    <!-- Interactive Combinatorial Table -->
+                    <div class="my-8 bg-slate-950/50 border border-slate-800 rounded-xl overflow-hidden">
+                        <table class="w-full text-left border-collapse text-xs md:text-sm">
+                            <thead>
+                                <tr class="bg-slate-900/80 border-b border-slate-800">
+                                    <th class="p-3 font-semibold text-slate-200">Color Depth ($n$)</th>
+                                    <th class="p-3 font-semibold text-slate-200">Mathematical Calculation ($2^n$)</th>
+                                    <th class="p-3 font-semibold text-slate-200 text-emerald-400">Unique Available Colors</th>
+                                    <th class="p-3 font-semibold text-slate-200">Typical Real-World Use Case</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="border-b border-slate-800/50">
+                                    <td class="p-3 font-mono">1 bit</td>
+                                    <td class="p-3 font-mono">$2^1 = 2$</td>
+                                    <td class="p-3 font-semibold font-mono">2</td>
+                                    <td class="p-3 text-slate-400">Pure monochrome line art (Black / White)</td>
+                                </tr>
+                                <tr class="border-b border-slate-800/50 bg-slate-900/20">
+                                    <td class="p-3 font-mono">4 bits</td>
+                                    <td class="p-3 font-mono">$2^4 = 16$</td>
+                                    <td class="p-3 font-semibold font-mono">16</td>
+                                    <td class="p-3 text-slate-400">Early retro pocket console graphics</td>
+                                </tr>
+                                <tr class="border-b border-slate-800/50">
+                                    <td class="p-3 font-mono">8 bits</td>
+                                    <td class="p-3 font-mono">$2^8 = 256$</td>
+                                    <td class="p-3 font-semibold font-mono">256</td>
+                                    <td class="p-3 text-slate-400">Vibrant 90s desktop PCs, standard GIF graphics</td>
+                                </tr>
+                                <tr class="border-b border-slate-800/50 bg-slate-900/20">
+                                    <td class="p-3 font-mono">24 bits</td>
+                                    <td class="p-3 font-mono">$2^{24}$</td>
+                                    <td class="p-3 font-semibold font-mono text-emerald-400">16.7 Million</td>
+                                    <td class="p-3 text-slate-400">Standard "True Color" photography on modern smartphones</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Mini Assessment 3 -->
+                    <div class="mt-8 border-t border-slate-800 pt-6">
+                        <div class="bg-indigo-950/20 border border-indigo-500/20 rounded-xl p-5">
+                            <h4 class="text-sm font-bold text-indigo-300 mb-2 flex items-center gap-2">
+                                <span class="bg-indigo-500 text-slate-950 text-xs px-2 py-0.5 rounded font-extrabold uppercase">Checkpoint</span>
+                                Color Space Exploration
+                            </h4>
+                            <p class="text-sm text-slate-300 mb-4 leading-relaxed">
+                                A high-performance scientific imaging camera system captures ultra-rich deep space photos with a color depth of exactly <strong>12 bits</strong>. 
+                                Calculate the maximum quantity of unique shades that the sensor can capture.
+                            </p>
+                            <div class="flex flex-wrap items-center gap-3">
+                                <input type="number" id="sc3-ans" class="px-3 py-2 bg-slate-950 rounded-lg border border-slate-800 text-sm w-44 focus:outline-none focus:border-indigo-500 text-white font-mono" placeholder="Calculate color range...">
+                                <button onclick="checkCheckpoint3()" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm rounded-lg transition-all shadow-md shadow-indigo-600/10">Submit Answer</button>
+                                <button onclick="toggleHint('cp3-hint')" class="text-xs text-slate-400 hover:text-indigo-300 underline">Show Tutor Hint</button>
+                            </div>
+                            <div id="cp3-hint" class="hidden text-xs text-amber-400/80 italic mt-3 leading-relaxed">
+                                Hint: Calculate $2^{12}$. Think of it as $2^{10} \times 2 \times 2$. Since $2^{10}$ is $1024$, double it ($2048$), then double it again to get $2^{12}$!
+                            </div>
+                            <div id="cp3-feedback" class="mt-3 text-sm font-semibold hidden"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Navigation buttons -->
+                <div class="flex justify-between">
+                    <button onclick="switchTab('tab-rgb')" class="px-5 py-3 border border-slate-800 hover:bg-slate-800 text-slate-300 rounded-xl font-bold text-sm transition-all flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
+                        <span>Previous</span>
+                    </button>
+                    <button onclick="switchTab('tab-calc')" class="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-bold text-sm transition-all shadow-lg shadow-indigo-500/10 flex items-center gap-2">
+                        <span>Continue to File Size Math</span>
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- MODULE 4: FILE SIZE CALCULATIONS -->
+            <div id="tab-calc" class="lesson-view space-y-6 hidden">
+                <div class="bg-slate-900/40 border border-slate-800 rounded-2xl p-6 md:p-8 backdrop-blur-sm">
+                    <span class="text-xs font-bold uppercase tracking-wider text-cyan-400">Section 4: Computational Physics</span>
+                    <h2 class="text-2xl md:text-3xl font-bold mt-1 text-white">How Large is the File?</h2>
+                    
+                    <p class="mt-4 text-slate-300 leading-relaxed text-base">
+                        To estimate the storage size of an uncompressed image file, we calculate the total pixels (Image Size, which is Height $\times$ Width) and multiply that by the color depth (how many bits each pixel requires).
+                    </p>
+
+                    <!-- Primary Formula Box -->
+                    <div class="my-6 bg-slate-950/80 border-l-4 border-cyan-400 rounded-r-2xl p-6 space-y-3">
+                        <h4 class="text-xs font-bold uppercase tracking-wider text-cyan-400">GCSE Master Equation</h4>
+                        <div class="text-sm md:text-base text-slate-200">
+                            $$\text{Image File Size} = \text{Height in Pixels} \times \text{Width in Pixels} \times \text{Colour Depth}$$
+                        </div>
+                    </div>
+
+                    <!-- Visual Step-by-Step Walkthrough based on user data -->
+                    <div class="bg-slate-950/80 border border-slate-800 rounded-2xl p-6 my-8">
+                        <h3 class="text-xs font-bold uppercase tracking-widest text-cyan-400 mb-4">Interactive Step-by-Step GCSE Example</h3>
+                        <p class="text-xs text-slate-400 mb-4">
+                            Let's calculate the size of an image with: **Height = 200px, Width = 400px, Color Depth = 16 bits**. Click through each mathematical stage to see how we get the final result:
+                        </p>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                            <div class="p-3 bg-slate-900/60 rounded-xl border border-slate-800 text-center">
+                                <span class="text-[9px] text-slate-500 block uppercase font-mono">Stage 1: Pixel Count</span>
+                                <span class="text-xs font-bold text-white block mt-1">200 × 400 =</span>
+                                <span class="text-sm font-bold text-cyan-400 font-mono">80,000 pixels</span>
+                            </div>
+                            <div class="p-3 bg-slate-900/60 rounded-xl border border-slate-800 text-center">
+                                <span class="text-[9px] text-slate-500 block uppercase font-mono">Stage 2: Bits Count</span>
+                                <span class="text-xs font-bold text-white block mt-1">80,000 × 16 =</span>
+                                <span class="text-sm font-bold text-indigo-400 font-mono">1,280,000 bits</span>
+                            </div>
+                            <div class="p-3 bg-slate-900/60 rounded-xl border border-slate-800 text-center">
+                                <span class="text-[9px] text-slate-500 block uppercase font-mono">Stage 3: Convert to Bytes</span>
+                                <span class="text-xs font-bold text-white block mt-1">1,280,000 ÷ 8 =</span>
+                                <span class="text-sm font-bold text-emerald-400 font-mono">160,000 Bytes</span>
+                            </div>
+                            <div class="p-3 bg-slate-900/60 rounded-xl border border-slate-800 text-center">
+                                <span class="text-[9px] text-slate-500 block uppercase font-mono">Stage 4: Convert to KB</span>
+                                <span class="text-xs font-bold text-white block mt-1">160,000 ÷ 1000 =</span>
+                                <span class="text-sm font-bold text-amber-400 font-mono">160 KB</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Steps and Units of Storage Section -->
+                    <h3 class="text-lg font-bold text-white mt-8 mb-4">Mastering Unit Conversions</h3>
+                    <p class="text-sm text-slate-300 leading-relaxed mb-6">
+                        Exam boards love Megapixel (MP) calculations. The word <strong>"Mega"</strong> represents 1 million. To convert total pixels into Megapixels, we divide by **1,000,000**.
+                    </p>
+
+                    <!-- Real Megapixels Demonstration Card based on user data -->
+                    <div class="p-5 bg-indigo-950/20 border border-indigo-500/20 rounded-xl mb-8">
+                        <span class="text-xs text-indigo-400 uppercase font-bold block font-mono">Real-World Resolution Example</span>
+                        <p class="text-slate-200 text-sm mt-1 leading-relaxed">
+                            Consider a high-resolution smartphone image with a height of **1536 pixels** and a width of **2018 pixels**:
+                        </p>
+                        <div class="text-base text-slate-100 font-mono mt-3 text-center bg-slate-950/80 p-3 rounded-lg border border-slate-800">
+                            $1536 \times 2018 = 3,099,648 \text{ pixels}$
+                            <br>
+                            $3,099,648 \div 1,000,000 = 3.1 \text{ Megapixels (3.1 MP)}$
+                        </div>
+                    </div>
+
+                    <!-- Sandbox Calculator -->
+                    <div class="bg-slate-950/80 border border-slate-800 rounded-2xl p-6">
+                        <h3 class="text-sm font-semibold text-white mb-4 flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-cyan-400"></span>
+                            Live Math Playground: Visual File Size Analyzer
+                        </h3>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <!-- Input Panel -->
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-xs text-slate-400 uppercase font-bold mb-1">Grid Width (Pixels)</label>
+                                    <input type="number" id="calc-width" value="800" oninput="calculateLiveFileSize()" class="w-full px-3 py-2 bg-slate-900 rounded-lg border border-slate-800 focus:outline-none focus:border-cyan-500 text-white font-mono text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-xs text-slate-400 uppercase font-bold mb-1">Grid Height (Pixels)</label>
+                                    <input type="number" id="calc-height" value="600" oninput="calculateLiveFileSize()" class="w-full px-3 py-2 bg-slate-900 rounded-lg border border-slate-800 focus:outline-none focus:border-cyan-500 text-white font-mono text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-xs text-slate-400 uppercase font-bold mb-1">Color Depth (Bits Per Pixel)</label>
+                                    <select id="calc-depth" onchange="calculateLiveFileSize()" class="w-full px-3 py-2 bg-slate-900 rounded-lg border border-slate-800 focus:outline-none focus:border-cyan-500 text-white font-mono text-sm">
+                                        <option value="1">1 bit (Monochrome)</option>
+                                        <option value="2">2 bits (4 Grayscale colors)</option>
+                                        <option value="8">8 bits (256 Colors)</option>
+                                        <option value="16">16 bits (65,536 Colors)</option>
+                                        <option value="24" selected>24 bits (16.7M RGB True Color)</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Live Output Display Panel -->
+                            <div class="bg-slate-900/50 rounded-xl border border-slate-800 p-5 flex flex-col justify-between">
+                                <span class="text-xs text-slate-400 block uppercase font-semibold">Breakdown of File Footprint</span>
+                                
+                                <div class="space-y-4 my-4">
+                                    <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+                                        <span class="text-xs text-slate-400">Total Resolution:</span>
+                                        <span id="out-pixels" class="text-sm font-semibold text-white font-mono">480,000 px</span>
+                                    </div>
+                                    <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+                                        <span class="text-xs text-slate-400">Megapixels (MP):</span>
+                                        <span id="out-mp" class="text-sm font-bold text-amber-400 font-mono">0.5 MP</span>
+                                    </div>
+                                    <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+                                        <span class="text-xs text-slate-400">Size in Bits:</span>
+                                        <span id="out-bits" class="text-sm font-semibold text-indigo-400 font-mono">11,520,000 bits</span>
+                                    </div>
+                                    <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+                                        <span class="text-xs text-slate-400">Size in Bytes:</span>
+                                        <span id="out-bytes" class="text-sm font-semibold text-emerald-400 font-mono">1,440,000 Bytes</span>
+                                    </div>
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-xs text-slate-400">Size in Kilobytes (KB):</span>
+                                        <span id="out-kb" class="text-sm font-bold text-amber-400 font-mono">1,440 KB</span>
+                                    </div>
+                                </div>
+
+                                <div class="text-[10px] text-slate-500 italic">
+                                    *Assumes $1\text{ KB} = 1,000\text{ Bytes}$ and $1\text{ MP} = 1,000,000\text{ pixels}$ as standard under SI guidelines.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Navigation buttons -->
+                <div class="flex justify-between">
+                    <button onclick="switchTab('tab-depth')" class="px-5 py-3 border border-slate-800 hover:bg-slate-800 text-slate-300 rounded-xl font-bold text-sm transition-all flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
+                        <span>Previous</span>
+                    </button>
+                    <button onclick="switchTab('tab-metadata')" class="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-bold text-sm transition-all shadow-lg shadow-indigo-500/10 flex items-center gap-2">
+                        <span>Continue to Metadata</span>
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- MODULE 5: THE ROLE OF METADATA -->
+            <div id="tab-metadata" class="lesson-view space-y-6 hidden">
+                <div class="bg-slate-900/40 border border-slate-800 rounded-2xl p-6 md:p-8 backdrop-blur-sm">
+                    <span class="text-xs font-bold uppercase tracking-wider text-rose-400">Section 5: File Architecture</span>
+                    <h2 class="text-2xl md:text-3xl font-bold mt-1 text-white">What is Metadata?</h2>
+                    
+                    <p class="mt-4 text-slate-300 leading-relaxed text-base">
+                        If an image file contained absolutely nothing but a massive stream of $1$s and $0$s representing color pixels, the computer wouldn't know how to render it!
+                    </p>
+
+                    <p class="mt-2 text-slate-300 leading-relaxed text-sm">
+                        Without **metadata** (data about data), the raw pixel data would not be correctly interpreted, which means the image could not be correctly displayed.
+                    </p>
+
+                    <!-- Core Definition Callout -->
+                    <div class="my-6 bg-rose-500/10 border-l-4 border-rose-500 rounded-r-2xl p-5">
+                        <span class="text-xs uppercase font-mono text-rose-400 block font-bold">Scientific Definition</span>
+                        <p class="text-slate-200 text-sm mt-1">
+                            <strong>Metadata</strong> is structurally defined as <span class="underline decoration-rose-500/30">"data about other data"</span>. It is information packaged at the header of a file that provides instructions on how the actual data should be processed, categorized, and rendered.
+                        </p>
+                    </div>
+
+                    <!-- Visual Metadata Breakdown -->
+                    <div class="bg-slate-950/80 border border-slate-800 rounded-2xl p-6 my-8">
+                        <h3 class="text-sm font-semibold text-white mb-4 font-mono">Composition of a Bitmap Image File</h3>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Header / Metadata -->
+                            <div class="bg-slate-900/50 rounded-xl border border-slate-800 p-4">
+                                <span class="text-xs text-rose-400 font-bold block uppercase mb-3">1. File & Image Metadata</span>
+                                <ul class="space-y-2.5 text-xs text-slate-300">
+                                    <li class="flex justify-between"><span class="font-mono text-rose-300">File Type</span> <span class="text-slate-400 font-mono">".BMP / .PNG"</span></li>
+                                    <li class="flex justify-between"><span class="font-mono text-rose-300">Author / Creator</span> <span class="text-slate-400 font-mono">"Bespoke Academy"</span></li>
+                                    <li class="flex justify-between"><span class="font-mono text-rose-300">Date Created</span> <span class="text-slate-400 font-mono">"May 27, 2026"</span></li>
+                                    <li class="flex justify-between"><span class="font-mono text-rose-300">Width & Height</span> <span class="text-slate-400 font-mono">"1536 x 2018 px"</span></li>
+                                    <li class="flex justify-between"><span class="font-mono text-rose-300">Resolution</span> <span class="text-slate-400 font-mono">"3.1 Megapixels"</span></li>
+                                    <li class="flex justify-between"><span class="font-mono text-rose-300">Colour Depth</span> <span class="text-slate-400 font-mono">"24-bit"</span></li>
+                                </ul>
+                            </div>
+
+                            <!-- Raw Image Data -->
+                            <div class="bg-slate-900/50 rounded-xl border border-slate-800 p-4 flex flex-col justify-between">
+                                <div>
+                                    <span class="text-xs text-indigo-400 font-bold block uppercase mb-3">2. Raw Image Payload (Pixel Stream)</span>
+                                    <p class="text-xs text-slate-400 leading-relaxed font-mono">
+                                        11011100101000101001111010110001011010... (representing the individual color channels for millions of pixels)
+                                    </p>
+                                </div>
+                                <div class="mt-4 p-2 bg-rose-500/15 border border-rose-500/30 rounded-lg text-[11px] text-slate-300">
+                                    Without the file header (metadata), a computer cannot determine where each row ends, rendering the raw pixel stream completely unreadable.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Python Connection Box (Integrating Python Turtle Command hints requested in raw data) -->
+                    <div class="bg-slate-950/80 border-l-4 border-amber-400 rounded-r-2xl p-6 mt-8">
+                        <div class="flex items-start gap-3">
+                            <span class="text-2xl">🐍</span>
+                            <div>
+                                <span class="text-xs uppercase font-bold text-amber-400 block font-mono">Programming Link: Python Turtle Graphics Connection</span>
+                                <p class="text-xs text-slate-300 mt-2 leading-relaxed">
+                                    When you write Python code to build graphical interfaces or draw vectors using the `turtle` library, you directly manipulate these RGB and hexadecimal structures. Look at how these built-in methods process the colors you've studied today:
+                                </p>
+                                <div class="bg-slate-900 border border-slate-850 p-4 rounded-xl mt-3 space-y-2 text-xs font-mono text-indigo-300">
+                                    <p><span class="text-emerald-400"># Set color with string or RGB tuple</span><br>turtle.fillcolor(<span class="text-amber-300">"red"</span>) <br>turtle.fillcolor(<span class="text-amber-300">"#551A8B"</span>) <br>turtle.fillcolor(<span class="text-amber-300">"(0, 35, 102)"</span>)</p>
+                                    <p class="pt-2"><span class="text-emerald-400"># Command boundaries to fill a vector shape with your color depth</span><br>turtle.begin_fill() <span class="text-slate-500"># Call before drawing shapes</span><br>turtle.circle(<span class="text-slate-400">50</span>)<br>turtle.end_fill() <span class="text-slate-500"># Call after drawing to apply color</span></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Navigation buttons -->
+                <div class="flex justify-between">
+                    <button onclick="switchTab('tab-calc')" class="px-5 py-3 border border-slate-800 hover:bg-slate-800 text-slate-300 rounded-xl font-bold text-sm transition-all flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
+                        <span>Previous</span>
+                    </button>
+                    <button onclick="switchTab('tab-exam')" class="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-bold text-sm transition-all shadow-lg shadow-indigo-500/10 flex items-center gap-2">
+                        <span>Continue to Exam Suite</span>
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- MODULE 6: PRACTICE SUITE -->
+            <div id="tab-exam" class="lesson-view space-y-6 hidden">
+                <div class="bg-slate-900/40 border border-slate-800 rounded-2xl p-6 md:p-8 backdrop-blur-sm">
+                    <span class="text-xs font-bold uppercase tracking-wider text-amber-400">Final Assessment</span>
+                    <h2 class="text-2xl md:text-3xl font-bold mt-1 text-white">Interactive Practice Suite</h2>
+                    <p class="mt-2 text-slate-300 text-sm">
+                        This suite features authentic GCSE exam-style problems. Complete each challenge to unlock your score.
+                    </p>
+
+                    <!-- Question 1 -->
+                    <div class="question-block border border-slate-800 bg-slate-950/60 p-6 rounded-xl space-y-4 my-6">
+                        <div class="flex justify-between items-start">
+                            <span class="text-xs font-bold uppercase tracking-widest text-indigo-400">Question 1 (Level 5)</span>
+                            <span class="text-xs text-slate-500">[2 Marks]</span>
+                        </div>
+                        <p class="text-sm text-slate-200 font-medium">
+                            State the term used to describe the tiny individual squares of color that make up a bitmap image.
+                        </p>
+                        
+                        <div class="space-y-3">
+                            <input type="text" id="eq1-ans" class="w-full md:w-80 px-4 py-2 bg-slate-900 border border-slate-800 rounded-lg text-sm text-white focus:outline-none focus:border-indigo-500" placeholder="Type your answer...">
+                            
+                            <div class="flex items-center gap-4">
+                                <button onclick="checkExamQ1()" class="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-slate-100 rounded text-xs font-semibold">Check Answer</button>
+                                <button onclick="toggleHint('hint-eq1')" class="text-xs text-slate-500 hover:text-indigo-400 underline">Tutor Tip</button>
+                            </div>
+                            <div id="hint-eq1" class="hidden text-xs text-amber-400/80 italic mt-2">
+                                Hint: This stands for "Picture Element".
+                            </div>
+                            <div id="eq1-fb" class="text-xs font-semibold hidden mt-2"></div>
+                        </div>
+                    </div>
+
+                    <!-- Question 2 -->
+                    <div class="question-block border border-slate-800 bg-slate-950/60 p-6 rounded-xl space-y-4 my-6">
+                        <div class="flex justify-between items-start">
+                            <span class="text-xs font-bold uppercase tracking-widest text-indigo-400">Question 2 (Level 6)</span>
+                            <span class="text-xs text-slate-500">[3 Marks]</span>
+                        </div>
+                        <p class="text-sm text-slate-200 font-medium">
+                            An uncompressed vector design program saves raw thumbnails using a color depth of exactly <strong>6 bits</strong> per pixel. 
+                            Calculate the maximum number of unique colors these pixels can show.
+                        </p>
+                        
+                        <div class="space-y-3">
+                            <input type="number" id="eq2-ans" class="w-full md:w-80 px-4 py-2 bg-slate-900 border border-slate-800 rounded-lg text-sm text-white focus:outline-none focus:border-indigo-500" placeholder="Type integer value...">
+                            
+                            <div class="flex items-center gap-4">
+                                <button onclick="checkExamQ2()" class="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-slate-100 rounded text-xs font-semibold">Check Answer</button>
+                                <button onclick="toggleHint('hint-eq2')" class="text-xs text-slate-500 hover:text-indigo-400 underline">Tutor Tip</button>
+                            </div>
+                            <div id="hint-eq2" class="hidden text-xs text-amber-400/80 italic mt-2">
+                                Hint: Use the $2^n$ rule where $n = 6$. Compute $2 \times 2 \times 2 \times 2 \times 2 \times 2$.
+                            </div>
+                            <div id="eq2-fb" class="text-xs font-semibold hidden mt-2"></div>
+                        </div>
+                    </div>
+
+                    <!-- Question 3 -->
+                    <div class="question-block border border-slate-800 bg-slate-950/60 p-6 rounded-xl space-y-4 my-6">
+                        <div class="flex justify-between items-start">
+                            <span class="text-xs font-bold uppercase tracking-widest text-indigo-400">Question 3 (Level 7)</span>
+                            <span class="text-xs text-slate-500">[4 Marks]</span>
+                        </div>
+                        <div class="text-sm text-slate-200 font-medium space-y-2">
+                            <p>An icon designer develops a retro sprite sheet. The image has the following specifications:</p>
+                            <ul class="list-disc pl-5 text-xs text-slate-300 space-y-1">
+                                <li><strong>Resolution:</strong> $200$ pixels wide by $100$ pixels high</li>
+                                <li><strong>Color Depth:</strong> $8$ bits</li>
+                            </ul>
+                            <p class="mt-2">Calculate the uncompressed file size of this digital asset <strong>in Bytes</strong>. You must show the steps of your calculations.</p>
+                        </div>
+                        
+                        <div class="space-y-3">
+                            <input type="number" id="eq3-ans" class="w-full md:w-80 px-4 py-2 bg-slate-900 border border-slate-800 rounded-lg text-sm text-white focus:outline-none focus:border-indigo-500" placeholder="Type final byte value...">
+                            
+                            <div class="flex items-center gap-4">
+                                <button onclick="checkExamQ3()" class="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-slate-100 rounded text-xs font-semibold">Check Answer</button>
+                                <button onclick="toggleHint('hint-eq3')" class="text-xs text-slate-500 hover:text-indigo-400 underline">Tutor Tip</button>
+                            </div>
+                            <div id="hint-eq3" class="hidden text-xs text-amber-400/80 italic mt-2">
+                                Hint: Step 1: Multiply Width $\times$ Height $\times$ Color Depth to get total bits ($200 \times 100 \times 8$). <br>Step 2: Convert to Bytes by dividing the result by 8. (Notice that multiplying by 8 and then dividing by 8 simplifies the calculation!)
+                            </div>
+                            <div id="eq3-fb" class="text-xs font-semibold hidden mt-2"></div>
+                        </div>
+                    </div>
+
+                    <!-- Question 4 -->
+                    <div class="question-block border border-slate-800 bg-slate-950/60 p-6 rounded-xl space-y-4 my-6">
+                        <div class="flex justify-between items-start">
+                            <span class="text-xs font-bold uppercase tracking-widest text-indigo-400">Question 4 (Level 8/9 Challenge)</span>
+                            <span class="text-xs text-slate-500">[5 Marks]</span>
+                        </div>
+                        <div class="text-sm text-slate-200 font-medium space-y-2">
+                            <p>A web framework delivers high-fidelity cover imagery on demand. The layout specifications are:</p>
+                            <ul class="list-disc pl-5 text-xs text-slate-300 space-y-1">
+                                <li><strong>Dimensions:</strong> $2,000$ pixels wide by $4,000$ pixels high</li>
+                                <li><strong>Color Depth:</strong> $24$ bits</li>
+                            </ul>
+                            <p class="mt-2">Calculate the total storage space required for one image <strong>in Megabytes (MB)</strong>. Assume $1\text{ MB} = 1,000,000\text{ Bytes}$.</p>
+                        </div>
+                        
+                        <div class="space-y-3">
+                            <input type="number" step="0.1" id="eq4-ans" class="w-full md:w-80 px-4 py-2 bg-slate-900 border border-slate-800 rounded-lg text-sm text-white focus:outline-none focus:border-indigo-500" placeholder="Type MB size (e.g. 24)...">
+                            
+                            <div class="flex items-center gap-4">
+                                <button onclick="checkExamQ4()" class="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-slate-100 rounded text-xs font-semibold">Check Answer</button>
+                                <button onclick="toggleHint('hint-eq4')" class="text-xs text-slate-500 hover:text-indigo-400 underline">Tutor Tip</button>
+                            </div>
+                            <div id="hint-eq4" class="hidden text-xs text-amber-400/80 italic mt-2">
+                                Hint: Step 1: Find total bits ($2000 \times 4000 \times 24 = 192,000,000$ bits). <br>Step 2: Convert to Bytes by dividing by 8 ($24,000,000$ Bytes). <br>Step 3: Convert to MB by dividing by $1,000,000$.
+                            </div>
+                            <div id="eq4-fb" class="text-xs font-semibold hidden mt-2"></div>
+                        </div>
+                    </div>
+
+                    <!-- Question 5 -->
+                    <div class="question-block border border-slate-800 bg-slate-950/60 p-6 rounded-xl space-y-4 my-6">
+                        <div class="flex justify-between items-start">
+                            <span class="text-xs font-bold uppercase tracking-widest text-indigo-400">Question 5 (Level 6)</span>
+                            <span class="text-xs text-slate-500">[2 Marks]</span>
+                        </div>
+                        <p class="text-sm text-slate-200 font-medium">
+                            State the primary purpose of <strong>metadata</strong> within an image file structure.
+                        </p>
+                        
+                        <div class="space-y-3">
+                            <div class="space-y-2">
+                                <label class="flex items-center gap-3 text-xs text-slate-300 bg-slate-900/60 hover:bg-slate-900 border border-slate-800/80 p-3 rounded-lg cursor-pointer">
+                                    <input type="radio" name="eq5-opt" value="a" class="accent-indigo-500">
+                                    <span>To compress the file size so it loads faster over cellular networks.</span>
+                                </label>
+                                <label class="flex items-center gap-3 text-xs text-slate-300 bg-slate-900/60 hover:bg-slate-900 border border-slate-800/80 p-3 rounded-lg cursor-pointer">
+                                    <input type="radio" name="eq5-opt" value="b" class="accent-indigo-500">
+                                    <span>To supply the computer with additional parameters (e.g. dimensions) required to reconstruct and display the image correctly.</span>
+                                </label>
+                                <label class="flex items-center gap-3 text-xs text-slate-300 bg-slate-900/60 hover:bg-slate-900 border border-slate-800/80 p-3 rounded-lg cursor-pointer">
+                                    <input type="radio" name="eq5-opt" value="c" class="accent-indigo-500">
+                                    <span>To increase the overall pixel density and enhance image sharpness.</span>
+                                </label>
+                            </div>
+                            
+                            <div class="flex items-center gap-4">
+                                <button onclick="checkExamQ5()" class="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-slate-100 rounded text-xs font-semibold">Check Answer</button>
+                                <button onclick="toggleHint('hint-eq5')" class="text-xs text-slate-500 hover:text-indigo-400 underline">Tutor Tip</button>
+                            </div>
+                            <div id="hint-eq5" class="hidden text-xs text-amber-400/80 italic mt-2">
+                                Hint: Metadata describes properties. Think about what a computer needs in order to know the width or color depth of an image.
+                            </div>
+                            <div id="eq5-fb" class="text-xs font-semibold hidden mt-2"></div>
+                        </div>
+                    </div>
+
+                    <!-- Celebration Card -->
+                    <div id="end-card" class="hidden border-2 border-emerald-500/50 bg-emerald-950/20 p-6 rounded-2xl text-center space-y-4 my-8">
+                        <span class="text-3xl">🏆</span>
+                        <h3 class="text-xl font-bold text-white header-title">Exemplary Accomplishment!</h3>
+                        <p class="text-sm text-slate-300 max-w-lg mx-auto leading-relaxed">
+                            You have completed all modules and answered every GCSE challenge problem correctly. Your theoretical knowledge and numerical execution meet the standard of GCSE Grade 9!
+                        </p>
+                        <div class="inline-block px-4 py-2 rounded-lg bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 text-sm font-bold">
+                            Total Score: 100%
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </section>
+    </main>
+
+    <!-- Global Footer -->
+    <footer class="border-t border-slate-800 bg-slate-950 px-6 py-4 text-center text-xs text-slate-500">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-2">
+            <span>&copy; 2026 Bespoke Education Suite. All rights reserved.</span>
+            <span>Bespoke Private Tutoring Platform</span>
+        </div>
+    </footer>
+
+    <!-- Interactive JS Core Logic -->
+    <script>
+        // Track completed sub-elements
+        let checkpointScores = {
+            cp1: false,
+            cp2: false,
+            cp3: false,
+            eq1: false,
+            eq2: false,
+            eq3: false,
+            eq4: false,
+            eq5: false
+        };
+
+        // Track B&W custom paint state
+        let bwGridStates = Array(64).fill(1); // 1 is default white
+
+        // Window Init
+        window.onload = function() {
+            // Setup B&W Painter Grid
+            initBwPaintGrid();
+            // Setup interactive grid
+            changeResolutionGrid();
+            // Setup RGB mixer
+            updateMasterMixer();
+            // Perform master calculation once
+            calculateLiveFileSize();
+            // Track dynamic metrics
+            calculateGlobalScore();
+            // Update color doubler values
+            updateDoublerVisual();
+        };
+
+        // Initialize Monochrome Paint Grid
+        function initBwPaintGrid() {
+            const container = document.getElementById('bw-paint-grid');
+            container.innerHTML = '';
+            for(let i = 0; i < 64; i++) {
+                const pixel = document.createElement('div');
+                pixel.className = 'w-full h-full bg-white border border-slate-200 cursor-pointer transition-all duration-100 hover:scale-105';
+                pixel.id = `bw-pixel-${i}`;
+                pixel.onclick = function() { toggleBwPixel(i); };
+                container.appendChild(pixel);
+            }
+            updateBwStream();
+        }
+
+        // Toggle Pixel color
+        function toggleBwPixel(index) {
+            bwGridStates[index] = bwGridStates[index] === 1 ? 0 : 1;
+            const pixel = document.getElementById(`bw-pixel-${index}`);
+            if (bwGridStates[index] === 0) {
+                // Color is on -> Black
+                pixel.className = 'w-full h-full bg-black border border-slate-900 cursor-pointer transition-all duration-100 hover:scale-105';
+            } else {
+                // Color is off -> White
+                pixel.className = 'w-full h-full bg-white border border-slate-200 cursor-pointer transition-all duration-100 hover:scale-105';
+            }
+            updateBwStream();
+        }
+
+        // Reset all grid contents
+        function clearPaintGrid(value) {
+            bwGridStates = Array(64).fill(value);
+            for(let i = 0; i < 64; i++) {
+                const pixel = document.getElementById(`bw-pixel-${i}`);
+                if (value === 0) {
+                    pixel.className = 'w-full h-full bg-black border border-slate-900 cursor-pointer';
+                } else {
+                    pixel.className = 'w-full h-full bg-white border border-slate-200 cursor-pointer';
+                }
+            }
+            updateBwStream();
+        }
+
+        // Synchronize display box with live sequence values
+        function updateBwStream() {
+            const container = document.getElementById('binary-stream-display');
+            container.innerText = bwGridStates.join('');
+        }
+
+        // Tab Swapping Controller
+        function switchTab(targetId) {
+            // Hide all tabs
+            document.querySelectorAll('.lesson-view').forEach(el => el.classList.add('hidden'));
+            // Remove active styles from sidebar menus
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('bg-indigo-600/20', 'border-indigo-500/40', 'text-white', 'font-medium');
+                btn.classList.add('hover:bg-slate-800/50', 'text-slate-400', 'hover:text-white', 'border-transparent');
+            });
+
+            // Show target
+            document.getElementById(targetId).classList.remove('hidden');
+            
+            // Add active styles to target button
+            const activeBtn = document.getElementById('btn-' + targetId);
+            activeBtn.classList.add('bg-indigo-600/20', 'border-indigo-500/40', 'text-white', 'font-medium');
+            activeBtn.classList.remove('hover:bg-slate-800/50', 'text-slate-400', 'hover:text-white', 'border-transparent');
+
+            // Update objective headers
+            const labelMap = {
+                'tab-pixels': '1. Pixels & Binary Art',
+                'tab-rgb': '2. The RGB Light Spectrum',
+                'tab-depth': '3. Colour Depth Math',
+                'tab-calc': '4. File Size Calculations',
+                'tab-metadata': '5. Role of Metadata',
+                'tab-exam': '6. Assessment Suite'
+            };
+            document.getElementById('objective-title').innerText = labelMap[targetId];
+            
+            // Smooth scroll up to section start
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Section 1: Dynamic pixel simulation generator
+        function changeResolutionGrid() {
+            const slider = document.getElementById('res-slider');
+            const density = parseInt(slider.value);
+            const container = document.getElementById('pixel-canvas-container');
+            const label = document.getElementById('resolution-label');
+
+            label.innerText = `Resolution Grid: ${density}x${density} (${density * density} pixels)`;
+
+            // Clear old values
+            container.innerHTML = '';
+
+            // Generate square sub-elements
+            const totalSquareCount = density * density;
+            const sizePercent = 100 / density;
+
+            for(let i = 0; i < totalSquareCount; i++) {
+                const pixel = document.createElement('div');
+                pixel.style.width = `${sizePercent}%`;
+                pixel.style.height = `${sizePercent}%`;
+                
+                // Programmatically draw a simple smiling face pattern depending on coordinates
+                const x = i % density;
+                const y = Math.floor(i / density);
+                const half = density / 2;
+                
+                // Color mapping to create a smiling face
+                let isFace = false;
+                
+                // Eye coordinates
+                if ((y === Math.floor(density * 0.3)) && (x === Math.floor(density * 0.3) || x === Math.floor(density * 0.7 - 1))) {
+                    isFace = true;
+                }
+                // Smile coordinates (curved parabolic line)
+                const mouthY = Math.floor(density * 0.65);
+                if (y === mouthY && x >= density * 0.25 && x < density * 0.75) {
+                    isFace = true;
+                }
+                if (y === mouthY - 1 && (x === Math.floor(density * 0.25) || x === Math.floor(density * 0.75 - 1))) {
+                    isFace = true;
+                }
+
+                if (isFace) {
+                    pixel.className = 'bg-amber-400 transition-colors duration-150 border-[0.2px] border-slate-900/10';
+                } else {
+                    pixel.className = 'bg-slate-900 border-[0.2px] border-slate-800/30 hover:bg-slate-800/60 transition-colors duration-150';
+                }
+
+                container.appendChild(pixel);
+            }
+        }
+
+        // Checklist Question validation 1
+        function checkCheckpoint1() {
+            const ans = document.getElementById('sc1-ans').value.trim();
+            const fb = document.getElementById('cp1-feedback');
+            fb.classList.remove('hidden');
+
+            if (ans === '2048') {
+                fb.innerHTML = '✨ Superb! Correct. $64 \\times 32 = 2,048$ pixels total.';
+                fb.className = 'mt-3 text-sm font-semibold text-emerald-400';
+                checkpointScores.cp1 = true;
+            } else {
+                fb.innerHTML = '❌ Not quite. Double-check your multiplication. $64 \\times 30 = 1920$, then add $64 \\times 2$.';
+                fb.className = 'mt-3 text-sm font-semibold text-rose-400';
+                checkpointScores.cp1 = false;
+            }
+            calculateGlobalScore();
+        }
+
+        // Section 2: Dynamic RGB Live Mixing Calculations
+        function updateMasterMixer() {
+            const r = parseInt(document.getElementById('mixer-r').value);
+            const g = parseInt(document.getElementById('mixer-g').value);
+            const b = parseInt(document.getElementById('mixer-b').value);
+
+            // Set text numerical displays
+            document.getElementById('mixer-r-val').innerText = r;
+            document.getElementById('mixer-g-val').innerText = g;
+            document.getElementById('mixer-b-val').innerText = b;
+
+            // Compute binary outputs
+            document.getElementById('mixer-r-bin').innerText = r.toString(2).padStart(8, '0');
+            document.getElementById('mixer-g-bin').innerText = g.toString(2).padStart(8, '0');
+            document.getElementById('mixer-b-bin').innerText = b.toString(2).padStart(8, '0');
+
+            // Compute hexadecimal outputs
+            const rHex = r.toString(16).toUpperCase().padStart(2, '0');
+            const gHex = g.toString(16).toUpperCase().padStart(2, '0');
+            const bHex = b.toString(16).toUpperCase().padStart(2, '0');
+
+            document.getElementById('mixer-r-hex').innerText = rHex;
+            document.getElementById('mixer-g-hex').innerText = gHex;
+            document.getElementById('mixer-b-hex').innerText = bHex;
+
+            // Colorize output box
+            const rgbString = `rgb(${r}, ${g}, ${b})`;
+            document.getElementById('rgb-preview').style.backgroundColor = rgbString;
+            document.getElementById('rgb-css-label').innerText = rgbString;
+            document.getElementById('rgb-hex-total').innerText = `Hex Code: #${rHex}${gHex}${bHex}`;
+        }
+
+        // Dynamic Bit-Doubling Visualizer
+        function updateDoublerVisual() {
+            const bits = parseInt(document.getElementById('bits-doubler-slider').value);
+            const numColors = Math.pow(2, bits);
+            
+            document.getElementById('doubler-bits-display').innerText = `${bits} ${bits === 1 ? 'bit' : 'bits'}`;
+            document.getElementById('doubler-equation-display').innerText = `2^${bits}`;
+            document.getElementById('doubler-colors-display').innerText = `${numColors.toLocaleString()} colors`;
+        }
+
+        // Checklist Question validation 2
+        function checkCheckpoint2() {
+            const ans = document.getElementById('sc2-ans').value.trim().toLowerCase();
+            const fb = document.getElementById('cp2-feedback');
+            fb.classList.remove('hidden');
+
+            if (ans === 'magenta' || ans === 'purple' || ans === 'pink') {
+                fb.innerHTML = '✨ Correct! Red (255) + Blue (255) mixes perfectly to create Magenta light.';
+                fb.className = 'mt-3 text-sm font-semibold text-emerald-400';
+                checkpointScores.cp2 = true;
+            } else {
+                fb.innerHTML = '❌ Close, but remember Red + Blue combined produces Magenta (a bright purplish pink color). Try sliding Red to 255 and Blue to 255!';
+                fb.className = 'mt-3 text-sm font-semibold text-rose-400';
+                checkpointScores.cp2 = false;
+            }
+            calculateGlobalScore();
+        }
+
+        // Checklist Question validation 3
+        function checkCheckpoint3() {
+            const ans = document.getElementById('sc3-ans').value.trim();
+            const fb = document.getElementById('cp3-feedback');
+            fb.classList.remove('hidden');
+
+            if (ans === '4096') {
+                fb.innerHTML = '✨ Exceptional calculation! $2^{12} = 4,096$ unique color tones.';
+                fb.className = 'mt-3 text-sm font-semibold text-emerald-400';
+                checkpointScores.cp3 = true;
+            } else {
+                fb.innerHTML = '❌ Not quite. Remember, $2^8 = 256$, $2^9 = 512$, $2^{10} = 1024$, $2^{11} = 2048$. What is $2^{12}$?';
+                fb.className = 'mt-3 text-sm font-semibold text-rose-400';
+                checkpointScores.cp3 = false;
+            }
+            calculateGlobalScore();
+        }
+
+        // Section 4: Playground file calculation script
+        function calculateLiveFileSize() {
+            const w = parseInt(document.getElementById('calc-width').value) || 0;
+            const h = parseInt(document.getElementById('calc-height').value) || 0;
+            const d = parseInt(document.getElementById('calc-depth').value) || 1;
+
+            const totalPixels = w * h;
+            const bits = totalPixels * d;
+            const bytes = bits / 8;
+            const kb = bytes / 1000;
+            const megapixels = (totalPixels / 1000000).toFixed(2);
+
+            document.getElementById('out-pixels').innerText = totalPixels.toLocaleString() + " px";
+            document.getElementById('out-mp').innerText = megapixels + " MP";
+            document.getElementById('out-bits').innerText = bits.toLocaleString() + " bits";
+            document.getElementById('out-bytes').innerText = bytes.toLocaleString() + " Bytes";
+            document.getElementById('out-kb').innerText = kb.toLocaleString() + " KB";
+        }
+
+        // Global hint visibility toggle
+        function toggleHint(elementId) {
+            const el = document.getElementById(elementId);
+            el.classList.toggle('hidden');
+        }
+
+        // GCSE EXAM CHECKING SUITE
+        function checkExamQ1() {
+            const val = document.getElementById('eq1-ans').value.trim().toLowerCase();
+            const fb = document.getElementById('eq1-fb');
+            fb.classList.remove('hidden');
+
+            if(val === 'pixel' || val === 'pixels' || val === 'picture element') {
+                fb.innerHTML = '🎯 Correct [2/2 Marks]: Perfect. "Pixel" is the term representing a Picture Element.';
+                fb.className = 'text-xs font-semibold text-emerald-400 mt-2';
+                checkpointScores.eq1 = true;
+            } else {
+                fb.innerHTML = '❌ Incorrect: Try again. Think of "Pixel" or "Picture Element".';
+                fb.className = 'text-xs font-semibold text-rose-400 mt-2';
+                checkpointScores.eq1 = false;
+            }
+            calculateGlobalScore();
+        }
+
+        function checkExamQ2() {
+            const val = document.getElementById('eq2-ans').value.trim();
+            const fb = document.getElementById('eq2-fb');
+            fb.classList.remove('hidden');
+
+            if(val === '64') {
+                fb.innerHTML = '🎯 Correct [3/3 Marks]: Excellent. $2^6 = 64$ unique color states.';
+                fb.className = 'text-xs font-semibold text-emerald-400 mt-2';
+                checkpointScores.eq2 = true;
+            } else {
+                fb.innerHTML = '❌ Incorrect: Remember the equation $2^n$. Try multiplying 2 by itself 6 times.';
+                fb.className = 'text-xs font-semibold text-rose-400 mt-2';
+                checkpointScores.eq2 = false;
+            }
+            calculateGlobalScore();
+        }
+
+        function checkExamQ3() {
+            const val = document.getElementById('eq3-ans').value.trim();
+            const fb = document.getElementById('eq3-fb');
+            fb.classList.remove('hidden');
+
+            if(val === '20000') {
+                fb.innerHTML = '🎯 Correct [4/4 Marks]: Perfect steps! $\\text{File Size} = \\frac{200 \\times 100 \\times 8}{8} = 20,000$ Bytes.';
+                fb.className = 'text-xs font-semibold text-emerald-400 mt-2';
+                checkpointScores.eq3 = true;
+            } else if (val === '160000') {
+                fb.innerHTML = '❌ Almost there, but your calculation is in BITS ($160,000$). The question specifically asks for Bytes. Divide by 8!';
+                fb.className = 'text-xs font-semibold text-rose-400 mt-2';
+                checkpointScores.eq3 = false;
+            } else {
+                fb.innerHTML = '❌ Incorrect. Double-check your formula: (Width $\\times$ Height $\\times$ Depth) / 8.';
+                fb.className = 'text-xs font-semibold text-rose-400 mt-2';
+                checkpointScores.eq3 = false;
+            }
+            calculateGlobalScore();
+        }
+
+        function checkExamQ4() {
+            const val = document.getElementById('eq4-ans').value.trim();
+            const fb = document.getElementById('eq4-fb');
+            fb.classList.remove('hidden');
+
+            if(val === '24') {
+                fb.innerHTML = '🎯 Correct [5/5 Marks]: Masterful! $2000 \\times 4000 \\times 24$ bits = $192,000,000$ bits. / 8 = $24,000,000$ Bytes. / $1,000,000$ = 24 Megabytes.';
+                fb.className = 'text-xs font-semibold text-emerald-400 mt-2';
+                checkpointScores.eq4 = true;
+            } else if (val === '24000000') {
+                fb.innerHTML = '❌ Close, but your output is in standard Bytes ($24,000,000$). Divide by $1,000,000$ to reach Megabytes.';
+                fb.className = 'text-xs font-semibold text-rose-400 mt-2';
+                checkpointScores.eq4 = false;
+            } else {
+                fb.innerHTML = '❌ Let\'s check the steps: total bits = $192,000,000$. Divide by 8 to get Bytes, then divide by $1,000,000$ to get MB.';
+                fb.className = 'text-xs font-semibold text-rose-400 mt-2';
+                checkpointScores.eq4 = false;
+            }
+            calculateGlobalScore();
+        }
+
+        function checkExamQ5() {
+            const selectEl = document.querySelector('input[name="eq5-opt"]:checked');
+            const fb = document.getElementById('eq5-fb');
+            fb.classList.remove('hidden');
+
+            if(!selectEl) {
+                fb.innerHTML = '⚠️ Please select an answer option.';
+                fb.className = 'text-xs font-semibold text-amber-400 mt-2';
+                return;
+            }
+
+            if(selectEl.value === 'b') {
+                fb.innerHTML = '🎯 Correct [2/2 Marks]: Yes! Metadata provides the computer with parameters to render raw pixels properly.';
+                fb.className = 'text-xs font-semibold text-emerald-400 mt-2';
+                checkpointScores.eq5 = true;
+            } else {
+                fb.innerHTML = '❌ Incorrect. Remember: metadata is descriptive data (e.g., width, height). It does not perform file compression or make pixels sharper.';
+                fb.className = 'text-xs font-semibold text-rose-400 mt-2';
+                checkpointScores.eq5 = false;
+            }
+            calculateGlobalScore();
+        }
+
+        // Global state calculator
+        function calculateGlobalScore() {
+            const totalTasks = Object.keys(checkpointScores).length;
+            const completedCount = Object.values(checkpointScores).filter(Boolean).length;
+            const percentage = Math.round((completedCount / totalTasks) * 100);
+
+            // Update DOM metrics
+            document.getElementById('master-progress').style.width = percentage + '%';
+            document.getElementById('master-score').innerText = percentage + '%';
+
+            // Show final victory card if perfect score is reached
+            if(percentage === 100) {
+                document.getElementById('end-card').classList.remove('hidden');
+            }
+        }
+    </script>
+</body>
+</html>
